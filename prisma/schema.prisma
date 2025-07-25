@@ -10,3 +10,22 @@ datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id    Int    @id @default(autoincrement())
+  name  String
+  email String @unique
+}
+
+model Food {
+  id            Int      @id @default(autoincrement())
+  name          String
+  calories      Float?
+  protein       Float?
+  fat           Float?
+  carbohydrates Float?
+  fiber         Float?
+  sugar         Float?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
