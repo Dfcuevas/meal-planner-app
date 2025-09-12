@@ -1,51 +1,10 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
-}
-
-model User {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
-  password  String
-  meals     Meal[]
-  role      Role
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-enum Role {
-  USER
-  ADMIN
-}
-
-model Food {
-  id               Int               @id @default(autoincrement())
-  name             String
-  calories         Float?
-  protein          Float?
-  fat              Float?
-  carbohydrates    Float?
-  fiber            Float?
-  sugar            Float?
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
-  // Este registro puede tener una categoria. Para encontrarla, toma el valor de categoryId de esta tabla y búscalo en el campo id de la tabla Category.
-  category         Category?         @relation(fields: [categoryId], references: [id])
-  categoryId       Int?
-  foodServingUnits FoodServingUnit[]
-  servingUnits     ServingUnit[]
-  Meal             Meal?             @relation(fields: [mealId], references: [id])
-  mealId           Int?
-  mealFood         MealFood[]
 }
 
 model Category {
@@ -56,26 +15,62 @@ model Category {
   updatedAt DateTime @updatedAt
 }
 
+model Food {
+  id               Int               @id @default(autoincrement())
+  name             String            @unique
+  calories         Float?
+  protein          Float?
+  fat              Float?
+  carbohydrates    Float?
+  fiber            Float?
+  sugar            Float?
+  foodServingUnits FoodServingUnit[]
+  servingUnits     ServingUnit[]
+  category         Category?         @relation(fields: [categoryId], references: [id])
+  categoryId       Int?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  Meal             Meal?             @relation(fields: [mealId], references: [id])
+  mealId           Int?
+  MealFood         MealFood[]
+}
+
 model ServingUnit {
   id              Int               @id @default(autoincrement())
   name            String            @unique
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
   foodServingUnit FoodServingUnit[]
-  MealFood        MealFood[]
   food            Food?             @relation(fields: [foodId], references: [id])
   foodId          Int?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  MealFood        MealFood[]
 }
 
 model FoodServingUnit {
   id            Int         @id @default(autoincrement())
   food          Food        @relation(fields: [foodId], references: [id])
-  foodId        Int
   servingUnit   ServingUnit @relation(fields: [servingUnitId], references: [id])
-  servingUnitId Int
   grams         Float?
+  foodId        Int
+  servingUnitId Int
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(USER)
+  meals     Meal[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Role {
+  USER
+  ADMIN
 }
 
 model Meal {
@@ -86,18 +81,18 @@ model Meal {
   userId    Int?
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
-  mealFood  MealFood[]
+  mealFoods MealFood[]
 }
 
 model MealFood {
   id            Int         @id @default(autoincrement())
   food          Food        @relation(fields: [foodId], references: [id])
-  foodId        Int
   meal          Meal        @relation(fields: [mealId], references: [id])
+  foodId        Int
   mealId        Int
-  servingUnit   ServingUnit @relation(fields: [servingUnitId], references: [id])
-  servingUnitId Int
   amount        Float
+  servingUnit   ServingUnit @relation(fields: [servingUnitId], references: [id])
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
+  servingUnitId Int
 }
